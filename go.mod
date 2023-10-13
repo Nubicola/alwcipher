@@ -3,7 +3,7 @@ module github.com/Nubicola/alwcipher
 go 1.21.1
 
 require (
-	fyne.io/fyne/v2 v2.4.0
+	fyne.io/fyne/v2 v2.4.1
 	github.com/Nubicola/NAEQ_GO v0.0.0-20231005164413-e4ae1002b664
 )
 
@@ -42,3 +42,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/js/dom v0.0.0-20210725211120-f030747120f2 // indirect
 )
+
+replace github.com/Nubicola/alwcipher/pkg/corpus => ../pkg/corpus
+
+replace github.com/Nubicola/alwcipher/pkg/calculator => ../pkg/calculator
