@@ -65,7 +65,8 @@ func (eqlc *EQLastCalculator) Calculate(ss []string) int {
 	for _, s := range ss {
 		sb.WriteByte(s[len(s)-1])
 	}
-	return eqlc.StringValue(sb.String())
+	var eqbc = new(EQBaseCalculator)
+	return eqbc.StringValue(sb.String())
 }
 
 func (eqlc *EQLastCalculator) StringValue(s string) int {

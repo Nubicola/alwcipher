@@ -24,7 +24,7 @@ func NewCorpus(calc calculator.ALWCalculator) *Corpus {
 // add this string to the corpus
 // this string is assumed to be "clean" and added as a whole string
 func (c *Corpus) Add(s string) {
-	v := strings.ToUpper(strings.TrimRight(s, "?!.,'"))
+	v := strings.ToUpper(strings.TrimRight(s, "?!;.,'"))
 	var val = c.calculator.StringValue(v)
 	(c.Eqs)[val] = removeDuplicate[string](append((c.Eqs)[val], v))
 }
@@ -56,6 +56,14 @@ func (c *Corpus) Save(w io.Writer) error {
 		return err
 	}
 	return nil
+}
+
+func (c *Corpus) Load(r io.Reader) error {
+	b, err := io.ReadAll(r)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(b, &c.Eqs)
 }
 
 // helper functions

@@ -2,6 +2,7 @@ package test
 
 import (
 	"bufio"
+	"bytes"
 	"os"
 	"strings"
 	"testing"
@@ -82,6 +83,26 @@ func TestGetMany(t *testing.T) {
 	}
 }
 
+func TestFirst(t *testing.T) {
+	var calculator = new(calculator.EQFirstCalculator)
+	//var corpus = corpus.NewCorpus(calculator)
+	var xs = []string{"TODAY", "ALL", "NEW", "TOYS"} // TANT = 63
+	var f = calculator.Calculate(xs)
+	if f != 63 {
+		t.Errorf("expected 63 but got %v", f)
+	}
+}
+
+func TestLast(t *testing.T) {
+	var calculator = new(calculator.EQLastCalculator)
+	//var corpus = corpus.NewCorpus(calculator)
+	var xs = []string{"TODAY", "ALL", "NEW", "TOYS"} // YLWS = 25
+	var f = calculator.Calculate(xs)
+	if f != 25 {
+		t.Errorf("expected 25 but got %v", f)
+	}
+}
+
 func TestCalculate(t *testing.T) {
 	var calculator = new(calculator.EQBaseCalculator)
 	var corpus = corpus.NewCorpus(calculator)
@@ -120,4 +141,22 @@ func TestReadOneValidCorpusFile(t *testing.T) {
 	}
 	// not sure how to validate that it read it right?
 	// could make a scanner here in code?
+}
+
+func TestLoad(t *testing.T) {
+	var calculator = new(calculator.EQBaseCalculator)
+	var corpus = corpus.NewCorpus(calculator)
+	data := []byte(`{"22":["DRAW","CLAD"]}`)
+	// convert byte slice to io.Reader
+	reader := bytes.NewReader(data)
+	err := corpus.Load(reader)
+	if err != nil {
+		t.Errorf("expected to read string, received error %v", err)
+		return
+	}
+	var v = corpus.Get(22)
+	if !(v[0] == "CLAD" || v[0] == "DRAW") {
+		t.Errorf("expected clad or draw, got %v", v[0])
+		return
+	}
 }

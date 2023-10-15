@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	myApp := app.New()
+	myApp := app.NewWithID("eu.thesaturdays.alwcipher")
 	myWindow := myApp.NewWindow("ALW Corpus Visualized")
 	myWindow.Resize(fyne.Size{
 		Width:  460,
@@ -24,8 +24,7 @@ func main() {
 
 	var alwbasecorpus = corpus.NewCorpus(eqbc)
 
-	myWindow.SetContent(ui.MakeUI(alwbasecorpus))
-
+	myWindow.SetContent(ui.MakeUI(myApp, alwbasecorpus))
 	// just for now...
 	fyne.CurrentApp().Settings().SetTheme(theme.LightTheme())
 	myWindow.ShowAndRun()
