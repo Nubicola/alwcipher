@@ -79,7 +79,7 @@ type calculators struct {
 }
 
 // requires the input and the output as this is where the connection happens between the two!
-func makeInputArea(a fyne.App, i *boundInput, o *boundOutput, c *corpus.Corpus, calcs *calculators) fyne.CanvasObject {
+func makeInputArea(i *boundInput, o *boundOutput, c *corpus.Corpus, calcs *calculators) fyne.CanvasObject {
 	ui := new(userInputUI)
 	ui.calculateButton = widget.NewButton("Calculate", func() {
 		s, _ := i.userInput.Get()
@@ -87,13 +87,13 @@ func makeInputArea(a fyne.App, i *boundInput, o *boundOutput, c *corpus.Corpus, 
 		var val = c.Calculate(s)
 
 		o.baseBoundValue.Set(calcs.base.StringValue(s))
-		o.firstBoundValue.Set(calcs.first.StringValue(s))
-		o.lastBoundValue.Set(calcs.last.StringValue(s))
+		o.firstBoundValue.Set(calcs.first.Calculate(strings.Split(s, " ")))
+		o.lastBoundValue.Set(calcs.last.Calculate(strings.Split(s, " ")))
 
 		// build the string to show in the output area. It's either the corpus after adding this string,
 		// or this string appended to the corpus' string (thus not affecting the corpus itself)
 		var ss = make([]string, 1)
-		if a.Preferences().Bool("WriteToCorpus") {
+		if fyne.CurrentApp().Preferences().Bool("WriteToCorpus") {
 			c.Add(s)
 			ss = c.Get(val)
 		} else {
@@ -106,7 +106,7 @@ func makeInputArea(a fyne.App, i *boundInput, o *boundOutput, c *corpus.Corpus, 
 	return box
 }
 
-func MakeWordsTabUI(a fyne.App, c *corpus.Corpus) fyne.CanvasObject {
+func MakeWordsTabUI(c *corpus.Corpus) fyne.CanvasObject {
 
 	calcs := new(calculators)
 	calcs.base = new(calculator.EQBaseCalculator)
@@ -117,13 +117,13 @@ func MakeWordsTabUI(a fyne.App, c *corpus.Corpus) fyne.CanvasObject {
 	ou := makeNewOutputUI(bo)
 
 	bi := makeNewBoundInput()
-	ia := makeInputArea(a, bi, bo, c, calcs)
+	ia := makeInputArea(bi, bo, c, calcs)
 
 	// write to corpus?
 	writeToCorpusCheckbox := widget.NewCheck("Save to corpus?", func(value bool) {
-		a.Preferences().SetBool("WriteToCorpus", value)
+		fyne.CurrentApp().Preferences().SetBool("WriteToCorpus", value)
 	})
-	writeToCorpusCheckbox.Checked = a.Preferences().BoolWithFallback("WriteToCorpus", true)
+	writeToCorpusCheckbox.Checked = fyne.CurrentApp().Preferences().BoolWithFallback("WriteToCorpus", true)
 	//writeToCorpusCheckbox.Disable() // not ready yet
 
 	box := container.NewVBox(ia, writeToCorpusCheckbox, ou)

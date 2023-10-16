@@ -10,7 +10,7 @@ import (
 	"github.com/Nubicola/alwcipher/pkg/corpus"
 )
 
-func makeToolbar(a fyne.App, c *corpus.Corpus) fyne.CanvasObject {
+func makeToolbar(c *corpus.Corpus) fyne.CanvasObject {
 	toolbar := widget.NewToolbar(
 		widget.NewToolbarAction(theme.DocumentSaveIcon(), func() {
 		}),
@@ -24,11 +24,11 @@ func makeToolbar(a fyne.App, c *corpus.Corpus) fyne.CanvasObject {
 }
 
 // should "show matches from"
-func MakeUI(a fyne.App, c *corpus.Corpus) fyne.CanvasObject {
+func MakeUI(c *corpus.Corpus) fyne.CanvasObject {
 
 	tabs := container.NewAppTabs(
-		container.NewTabItem("Words", MakeWordsTabUI(a, c)),
-		container.NewTabItem("Numbers", widget.NewLabel("Numbers!!")),
+		container.NewTabItem("Words", MakeWordsTabUI(c)),
+		container.NewTabItem("Numbers", MakeNumbersTabUI(c)),
 		container.NewTabItem("Corpus", widget.NewLabel("The corpus")),
 	)
 
@@ -36,6 +36,6 @@ func MakeUI(a fyne.App, c *corpus.Corpus) fyne.CanvasObject {
 
 	tabs.SetTabLocation(container.TabLocationBottom)
 
-	content := container.NewBorder(makeToolbar(a, c), nil, nil, nil, tabs)
+	content := container.NewBorder(makeToolbar(c), nil, nil, nil, tabs)
 	return content
 }

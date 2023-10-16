@@ -1,9 +1,9 @@
 # alwcipher
 
 Roadmap
-- Corpus: SaveTo, LoadFrom. How to deal with that in the most cross-platformy way? Requires numerous files is the problem...?
-Corpus doesn't expose its underlying datatype. Visitor pattern exposure would do the trick. VisitAllVaues(func v)
+- Corpus: SaveTo, LoadFrom. 
 - UI:
+    - Make SaveTo and LoadFrom visible in interface
     - New tab: numeric corpus explorer
         - Type in a number and it shows
             - N
