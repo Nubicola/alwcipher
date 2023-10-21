@@ -69,9 +69,27 @@ func makeNewBoundInput() *boundInput {
 	return i
 }
 
+type wordsKeyedEntry struct {
+	widget.Entry
+	OnTypedKey func()
+}
+
+func makeNewWordKeyedEntry() *wordsKeyedEntry {
+	entry := &wordsKeyedEntry{}
+	entry.ExtendBaseWidget(entry)
+	return entry
+}
+
+func (e *wordsKeyedEntry) TypedKey(key *fyne.KeyEvent) {
+	e.Entry.TypedKey(key)
+	if key.Name == fyne.KeyReturn || key.Name == fyne.KeyEnter {
+		e.OnTypedKey()
+	}
+}
+
 type userInputUI struct {
 	calculateButton *widget.Button
-	userInput       *widget.Entry
+	userInput       *wordsKeyedEntry
 }
 
 type calculators struct {
@@ -81,7 +99,8 @@ type calculators struct {
 // requires the input and the output as this is where the connection happens between the two!
 func makeInputArea(i *boundInput, o *boundOutput, c *corpus.Corpus, calcs *calculators) fyne.CanvasObject {
 	ui := new(userInputUI)
-	ui.calculateButton = widget.NewButton("Calculate", func() {
+	// closures are great!
+	calcfunc := func() {
 		s, _ := i.userInput.Get()
 		// calculate the value of that thing
 		var val = c.Calculate(s)
@@ -100,8 +119,12 @@ func makeInputArea(i *boundInput, o *boundOutput, c *corpus.Corpus, calcs *calcu
 			ss = append(c.Get(val), s)
 		}
 		o.outputFieldBoundValue.Set(strings.Join(ss, "\n"))
-	})
-	ui.userInput = widget.NewEntryWithData(i.userInput)
+	}
+
+	ui.calculateButton = widget.NewButton("Calculate", calcfunc)
+	ui.userInput = makeNewWordKeyedEntry()
+	ui.userInput.Bind(i.userInput)
+	ui.userInput.OnTypedKey = calcfunc
 	box := container.NewGridWithColumns(2, ui.userInput, ui.calculateButton)
 	return box
 }

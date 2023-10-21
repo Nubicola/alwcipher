@@ -22,22 +22,45 @@ func makeNewBoundNumInput() *boundNumInput {
 	return i
 }
 
+// duplicate type from WordsTab, could be moved to common...later
+type numKeyedEntry struct {
+	widget.Entry
+	OnTypedKey func()
+}
+
+func makeNewNumKeyedEntry() *numKeyedEntry {
+	entry := &numKeyedEntry{}
+	entry.ExtendBaseWidget(entry)
+	return entry
+}
+
+func (e *numKeyedEntry) TypedKey(key *fyne.KeyEvent) {
+	e.Entry.TypedKey(key)
+	if key.Name == fyne.KeyReturn || key.Name == fyne.KeyEnter {
+		e.OnTypedKey()
+	}
+}
+
 type userNumInputUI struct {
 	calculateButton *widget.Button
-	userInput       *widget.Entry
+	userInput       *numKeyedEntry
 }
 
 func makeNumInputArea(i *boundNumInput, o *boundNumOutput, c *corpus.Corpus) fyne.CanvasObject {
 	ui := new(userNumInputUI)
-	ui.calculateButton = widget.NewButton("Show me", func() {
+	calc := func() {
 		var v, err = i.userNumInput.Get()
 		if err != nil {
 			o.textOutput.Set("error")
 		} else {
 			o.textOutput.Set(strings.Join(c.Get(v), "\n"))
 		}
-	})
-	ui.userInput = widget.NewEntryWithData(i.userInput)
+	}
+
+	ui.calculateButton = widget.NewButton("Show me", calc)
+	ui.userInput = makeNewNumKeyedEntry()
+	ui.userInput.Bind(i.userInput)
+	ui.userInput.OnTypedKey = calc
 	box := container.NewGridWithColumns(2, ui.userInput, ui.calculateButton)
 	return box
 }
