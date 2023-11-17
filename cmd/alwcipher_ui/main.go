@@ -23,7 +23,7 @@ func main() {
 
 	var alwbasecorpus = corpus.NewCorpus(eqbc)
 
-	myWindow.SetContent(ui.MakeUI(alwbasecorpus))
+	myWindow.SetContent(ui.MakeUI(alwbasecorpus, myWindow))
 	// just for now...
 	//fyne.CurrentApp().Settings().SetTheme(theme.LightTheme())
 	myWindow.ShowAndRun()
