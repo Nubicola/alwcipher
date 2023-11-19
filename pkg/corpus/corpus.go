@@ -39,14 +39,16 @@ func (c *Corpus) Calculate(s string) int {
 	return c.calculator.StringValue(s)
 }
 
-func (c *Corpus) Read(r *bufio.Scanner) error {
+func (c *Corpus) ReadFromScanner(r *bufio.Scanner) (int, error) {
+	i := 0
 	for r.Scan() {
 		c.Add(r.Text())
+		i += 1
 	}
-	return r.Err()
+	return i, r.Err()
 }
 
-func (c *Corpus) Save(w io.Writer) error {
+func (c *Corpus) SaveNative(w io.Writer) error {
 	b, err := json.Marshal(c.Eqs)
 	if err != nil {
 		return err
@@ -58,7 +60,7 @@ func (c *Corpus) Save(w io.Writer) error {
 	return nil
 }
 
-func (c *Corpus) Load(r io.Reader) error {
+func (c *Corpus) LoadNative(r io.Reader) error {
 	b, err := io.ReadAll(r)
 	if err != nil {
 		return err

@@ -134,7 +134,7 @@ func TestReadOneValidCorpusFile(t *testing.T) {
 	defer f.Close()
 	scanner := bufio.NewScanner(bufio.NewReader(f))
 	scanner.Split(bufio.ScanLines)
-	err = corpus.Read(scanner)
+	_, err = corpus.ReadFromScanner(scanner)
 	if err != nil {
 		t.Errorf("failed to read corpus file, %v", err)
 		return
@@ -149,7 +149,7 @@ func TestLoad(t *testing.T) {
 	data := []byte(`{"22":["DRAW","CLAD"]}`)
 	// convert byte slice to io.Reader
 	reader := bytes.NewReader(data)
-	err := corpus.Load(reader)
+	err := corpus.LoadNative(reader)
 	if err != nil {
 		t.Errorf("expected to read string, received error %v", err)
 		return
