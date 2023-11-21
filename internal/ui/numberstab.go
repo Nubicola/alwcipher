@@ -120,6 +120,7 @@ func MakeNumbersTabUI(c *corpus.Corpus) fyne.CanvasObject {
 	oa := makeNumOutputArea(bo, c)
 	bi := makeNewBoundNumInput()
 	ia := makeNumInputArea(bi, bo, c)
-	return container.NewVBox(ia, oa)
+	return container.NewBorder(ia, nil, nil, nil, oa)
+	//return container.NewVBox(ia, oa)
 	//box := container.NewGridWithRows(4, layout.NewSpacer(), ia, layout.NewSpacer(), oa)
 }
