@@ -45,9 +45,9 @@ func makeToolbar(c *corpus.Corpus, w fyne.Window) fyne.CanvasObject {
 func MakeUI(c *corpus.Corpus, w fyne.Window) fyne.CanvasObject {
 
 	tabs := container.NewAppTabs(
-		container.NewTabItem("Words", MakeWordsTabUI(c)),
-		container.NewTabItem("Numbers", MakeNumbersTabUI(c)),
-		container.NewTabItem("Corpus", MakeCorpusTabUI(c, w)),
+		container.NewTabItem("Identify", MakeWordsTabUI(c)),
+		container.NewTabItem("Explore", MakeNumbersTabUI(c)),
+		container.NewTabItem("Discover", MakeCorpusTabUI(c, w)),
 	)
 
 	tabs.SetTabLocation(container.TabLocationBottom)

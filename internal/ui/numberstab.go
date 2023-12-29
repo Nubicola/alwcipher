@@ -1,7 +1,8 @@
 package ui
 
 import (
-	"strings"
+	"log"
+	"strconv"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -46,14 +47,21 @@ type userNumInputUI struct {
 	userInput       *numKeyedEntry
 }
 
-func makeNumInputArea(i *boundNumInput, o *boundNumOutput, c *corpus.Corpus) fyne.CanvasObject {
+func makeNumInputArea(i *boundNumInput, o *boundNumOutput, w fyne.CanvasObject, c *corpus.Corpus) fyne.CanvasObject {
 	ui := new(userNumInputUI)
 	calc := func() {
 		var v, err = i.userNumInput.Get()
-		if err != nil {
-			o.textOutput.Set("error")
-		} else {
-			o.textOutput.Set(strings.Join(c.Get(v), "\n"))
+		if err == nil && v > 0 {
+			// this is kludgy
+			a := make(map[string][]string)
+			b := make(map[string]string)
+			o.tree.Set(a, b)
+			o.tree.Append(binding.DataTreeRootID, strconv.Itoa(v), strconv.Itoa(v))
+			for i, s := range c.Get(v) {
+				log.Println(i, s)
+				o.tree.Append(strconv.Itoa(v), s, s)
+			}
+			w.Refresh()
 		}
 	}
 
@@ -66,60 +74,50 @@ func makeNumInputArea(i *boundNumInput, o *boundNumOutput, c *corpus.Corpus) fyn
 }
 
 type boundNumOutput struct {
-	textOutput binding.String
+	//textOutput binding.String
+	tree binding.StringTree
 }
 
 func makeNewBoundNumOutput() *boundNumOutput {
 	o := new(boundNumOutput)
-	o.textOutput = binding.NewString()
+	//o.textOutput = binding.NewString()
+	o.tree = binding.NewStringTree()
+	//o.tree = binding.NewIntTree()
 	return o
 }
 
 func makeNumOutputArea(bo *boundNumOutput, c *corpus.Corpus) fyne.CanvasObject {
-	w := widget.NewEntryWithData(bo.textOutput)
-	w.MultiLine = true
-	w.Wrapping = fyne.TextWrapBreak
-	return w
+	/*	w := widget.NewEntryWithData(bo.textOutput)
+		w.MultiLine = true
+		w.Wrapping = fyne.TextWrapBreak*/
+
+	treewg := widget.NewTreeWithData(
+		/* (data binding.DataTree, createItem func(bool) fyne.CanvasObject, updateItem func(binding.DataItem, bool, fyne.CanvasObject)) *widget.Tree*/
+		bo.tree,
+		func(_ bool) fyne.CanvasObject {
+			return widget.NewLabel("hello")
+		},
+		func(data binding.DataItem, isParent bool, obj fyne.CanvasObject) {
+
+			l := obj.(*widget.Label)
+			l.Bind(data.(binding.String))
+		},
+	)
+
+	return treewg
 }
 
 func MakeNumbersTabUI(c *corpus.Corpus) fyne.CanvasObject {
 
-	/*calcs := new(calculators)
-	calcs.base = new(calculator.EQBaseCalculator)
-	calcs.first = new(calculator.EQFirstCalculator)
-	calcs.last = new(calculator.EQLastCalculator)*/
-
-	/*	tree := widget.NewTree(
-		func(id widget.TreeNodeID) []widget.TreeNodeID {
-			switch id {
-			case "":
-				return []widget.TreeNodeID{"a", "b", "c"}
-			case "a":
-				return []widget.TreeNodeID{"a1", "a2"}
-			}
-			return []string{}
-		},
-		func(id widget.TreeNodeID) bool {
-			return id == "" || id == "a"
-		},
-		func(branch bool) fyne.CanvasObject {
-			if branch {
-				return widget.NewLabel("Branch template")
-			}
-			return widget.NewLabel("Leaf template")
-		},
-		func(id widget.TreeNodeID, branch bool, o fyne.CanvasObject) {
-			text := id
-			if branch {
-				text += " (branch)"
-			}
-			o.(*widget.Label).SetText(text)
-		})*/
+	//tree.Append()
+	// iterate over the keys of the corpus without knowing how the corpus is implemented
+	// GetKeys perhaps?
+	// currently Corpus exports Eqs so just grab it directly :P. Not the best design.
 
 	bo := makeNewBoundNumOutput()
 	oa := makeNumOutputArea(bo, c)
 	bi := makeNewBoundNumInput()
-	ia := makeNumInputArea(bi, bo, c)
+	ia := makeNumInputArea(bi, bo, oa, c)
 	return container.NewBorder(ia, nil, nil, nil, oa)
 	//return container.NewVBox(ia, oa)
 	//box := container.NewGridWithRows(4, layout.NewSpacer(), ia, layout.NewSpacer(), oa)
