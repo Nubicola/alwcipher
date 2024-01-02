@@ -1,8 +1,9 @@
 package ui
 
 import (
-	"log"
+	"slices"
 	"strconv"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -51,21 +52,38 @@ func makeNumInputArea(i *boundNumInput, o *boundNumOutput, w fyne.CanvasObject, 
 	ui := new(userNumInputUI)
 	calc := func() {
 		var v, err = i.userNumInput.Get()
-		if err == nil && v > 0 {
+		if err == nil {
 			// this is kludgy
 			a := make(map[string][]string)
 			b := make(map[string]string)
 			o.tree.Set(a, b)
-			o.tree.Append(binding.DataTreeRootID, strconv.Itoa(v), strconv.Itoa(v))
-			for i, s := range c.Get(v) {
-				log.Println(i, s)
-				o.tree.Append(strconv.Itoa(v), s, s)
+			if v > 0 { // only put the requested number into the tree
+				o.tree.Append(binding.DataTreeRootID, strconv.Itoa(v), strconv.Itoa(v))
+				for _, s := range c.Get(v) {
+					o.tree.Append(strconv.Itoa(v), s, s)
+				}
+			} else { // put the whole corpus in the tree.
+				keys := make([]int, 0, len(c.Eqs))
+				for key := range c.Eqs {
+					keys = append(keys, key)
+				}
+				slices.Sort(keys)
+				for k := range keys {
+					if k <= 0 {
+						continue
+					}
+					sk := strconv.Itoa(k)
+					if len(c.Get(k)) > 0 {
+						o.tree.Append(binding.DataTreeRootID, sk, sk)
+						o.tree.Append(sk, c.Get(k)[0], strings.Join(c.Get(k), "; "))
+					}
+				}
 			}
 			w.Refresh()
 		}
 	}
 
-	ui.calculateButton = widget.NewButton("Show me", calc)
+	ui.calculateButton = widget.NewButton("Filter", calc)
 	ui.userInput = makeNewNumKeyedEntry()
 	ui.userInput.Bind(i.userInput)
 	ui.userInput.OnTypedKey = calc
@@ -80,9 +98,7 @@ type boundNumOutput struct {
 
 func makeNewBoundNumOutput() *boundNumOutput {
 	o := new(boundNumOutput)
-	//o.textOutput = binding.NewString()
 	o.tree = binding.NewStringTree()
-	//o.tree = binding.NewIntTree()
 	return o
 }
 
@@ -98,7 +114,6 @@ func makeNumOutputArea(bo *boundNumOutput, c *corpus.Corpus) fyne.CanvasObject {
 			return widget.NewLabel("hello")
 		},
 		func(data binding.DataItem, isParent bool, obj fyne.CanvasObject) {
-
 			l := obj.(*widget.Label)
 			l.Bind(data.(binding.String))
 		},

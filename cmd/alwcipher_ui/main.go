@@ -3,7 +3,6 @@ package main
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/theme"
 
 	ui "github.com/Nubicola/alwcipher/internal/ui"
 	calculator "github.com/Nubicola/alwcipher/pkg/calculator"
@@ -26,6 +25,6 @@ func main() {
 
 	myWindow.SetContent(ui.MakeUI(alwbasecorpus, myWindow))
 	// just for now...
-	fyne.CurrentApp().Settings().SetTheme(theme.LightTheme())
+	//fyne.CurrentApp().Settings().SetTheme(theme.LightTheme())
 	myWindow.ShowAndRun()
 }

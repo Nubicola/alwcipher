@@ -148,18 +148,8 @@ func MakeWordsTabUI(c *corpus.Corpus) fyne.CanvasObject {
 		fyne.CurrentApp().Preferences().SetBool("WriteToCorpus", value)
 	})
 	writeToCorpusCheckbox.Checked = fyne.CurrentApp().Preferences().BoolWithFallback("WriteToCorpus", true)
-	//writeToCorpusCheckbox.Disable() // not ready yet
 
-	box := container.NewVBox(ia, writeToCorpusCheckbox, ou)
-
-	/*var jbutton = widget.NewButton("Marshal", func() {
-		var b bytes.Buffer
-		err := c.Save(&b)
-		if err != nil {
-			bo.outputFieldBoundValue.Set(string(err.Error()))
-		}
-		bo.outputFieldBoundValue.Set(b.String())
-	})*/
-
-	return box
+	box := container.NewVBox(ia, writeToCorpusCheckbox)
+	border := container.NewBorder(box, nil, nil, nil, ou)
+	return border
 }
