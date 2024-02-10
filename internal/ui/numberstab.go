@@ -51,6 +51,8 @@ type userNumInputUI struct {
 func makeNumInputArea(i *boundNumInput, o *boundNumOutput, w fyne.CanvasObject, c *corpus.Corpus) fyne.CanvasObject {
 	ui := new(userNumInputUI)
 	calc := func() {
+		// tree is not showing the entire data structure every time
+		// also, it'll just crash if you click around enough; read & write at the same time somehow
 		var v, err = i.userNumInput.Get()
 		if err == nil {
 			// this is kludgy
@@ -111,7 +113,7 @@ func makeNumOutputArea(bo *boundNumOutput, c *corpus.Corpus) fyne.CanvasObject {
 		/* (data binding.DataTree, createItem func(bool) fyne.CanvasObject, updateItem func(binding.DataItem, bool, fyne.CanvasObject)) *widget.Tree*/
 		bo.tree,
 		func(_ bool) fyne.CanvasObject {
-			return widget.NewLabel("hello")
+			return widget.NewLabelWithStyle("hello", fyne.TextAlignLeading, fyne.TextStyle{})
 		},
 		func(data binding.DataItem, isParent bool, obj fyne.CanvasObject) {
 			l := obj.(*widget.Label)
@@ -119,7 +121,8 @@ func makeNumOutputArea(bo *boundNumOutput, c *corpus.Corpus) fyne.CanvasObject {
 		},
 	)
 
-	return treewg
+	r := container.NewBorder(nil, nil, nil, nil, treewg)
+	return r
 }
 
 func MakeNumbersTabUI(c *corpus.Corpus) fyne.CanvasObject {

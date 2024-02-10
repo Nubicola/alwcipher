@@ -1,6 +1,10 @@
 # alwcipher
 
+Known bug
+Load a corpus, press calculate with no string - crash
+
 Roadmap
+- when number tree is focused, typing numbers will filter the tree
 - Corpus: SaveTo, LoadFrom. 
 - UI:
     - Make SaveTo and LoadFrom visible in interface
