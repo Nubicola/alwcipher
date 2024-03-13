@@ -35,10 +35,10 @@ func makeToolbar(c *corpus.Corpus, w fyne.Window) fyne.CanvasObject {
 		widget.NewToolbarAction(theme.HelpIcon(), func() {
 			richtext := widget.NewRichTextFromMarkdown(
 				"Thank you for using ALW Visualized\n\n" +
-					"# Identify\n\n Type in a word or words. The EQ value will be shown on the right. Matching values from your corpus will be shown.\n\n" +
+					"# Words\n\n Type in a word or words. The EQ value will be shown on the right. Matching values from your corpus will be shown.\n\n" +
 					"The selection box 'save to corpus' will do just that.\n\n" +
-					"# Explore\n\n Type in a number. All matching words in the corpus will be shown\n\n" +
-					"# Discover\n\n Import words or lines from an external file. Every word or line will undergo the EQ calculation and be added to the existing corpus\n\n" +
+					"# Numbers\n\n Type in a number. All matching words in the corpus will be shown\n\n" +
+					"# Import\n\n Import words or lines from an external file. Every word or line will undergo the EQ calculation and be added to the existing corpus\n\n" +
 					"# Load and Save\n\n Save and load a corpus file in this app's native format\n\n")
 			richtext.Wrapping = fyne.TextWrapWord
 			d := dialog.NewCustom("ALW Help", "OK", richtext, w)

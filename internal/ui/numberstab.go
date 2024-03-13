@@ -1,10 +1,6 @@
 package ui
 
 import (
-	"slices"
-	"strconv"
-	"strings"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
@@ -53,34 +49,40 @@ func makeNumInputArea(i *boundNumInput, o *boundNumOutput, w fyne.CanvasObject, 
 	calc := func() {
 		// tree is not showing the entire data structure every time
 		// also, it'll just crash if you click around enough; read & write at the same time somehow
-		var v, err = i.userNumInput.Get()
-		if err == nil {
-			// this is kludgy
-			a := make(map[string][]string)
-			b := make(map[string]string)
-			o.tree.Set(a, b)
+		var st, _ = i.userInput.Get()
+		var v, err1 = i.userNumInput.Get()
+		a := make(map[string][]string)
+		b := make(map[string]string)
+		o.tree.Set(a, b)
+		if err1 == nil {
 			if v > 0 { // only put the requested number into the tree
-				o.tree.Append(binding.DataTreeRootID, strconv.Itoa(v), strconv.Itoa(v))
+				o.tree.Append(binding.DataTreeRootID, st, st)
 				for _, s := range c.Get(v) {
-					o.tree.Append(strconv.Itoa(v), s, s)
+					o.tree.Append(st, s, s)
 				}
-			} else { // put the whole corpus in the tree.
+			} /*else {
 				keys := make([]int, 0, len(c.Eqs))
 				for key := range c.Eqs {
 					keys = append(keys, key)
 				}
+
+				fmt.Println("sorting")
 				slices.Sort(keys)
-				for k := range keys {
+
+				for _, k := range keys {
 					if k <= 0 {
 						continue
 					}
 					sk := strconv.Itoa(k)
+					fmt.Println(k, "has", len(c.Get(k)), "elements")
 					if len(c.Get(k)) > 0 {
 						o.tree.Append(binding.DataTreeRootID, sk, sk)
-						o.tree.Append(sk, c.Get(k)[0], strings.Join(c.Get(k), "; "))
+						for _, word := range c.Get(k) {
+							o.tree.Append(sk, word, word)
+						}
 					}
 				}
-			}
+			}*/
 			w.Refresh()
 		}
 	}
@@ -113,11 +115,14 @@ func makeNumOutputArea(bo *boundNumOutput, c *corpus.Corpus) fyne.CanvasObject {
 		/* (data binding.DataTree, createItem func(bool) fyne.CanvasObject, updateItem func(binding.DataItem, bool, fyne.CanvasObject)) *widget.Tree*/
 		bo.tree,
 		func(_ bool) fyne.CanvasObject {
-			return widget.NewLabelWithStyle("hello", fyne.TextAlignLeading, fyne.TextStyle{})
+			return widget.NewLabelWithStyle("", fyne.TextAlignLeading, fyne.TextStyle{})
 		},
 		func(data binding.DataItem, isParent bool, obj fyne.CanvasObject) {
 			l := obj.(*widget.Label)
+			//fmt.Println("binding!", l.Text)
+			//if !isParent {
 			l.Bind(data.(binding.String))
+			//}
 		},
 	)
 
