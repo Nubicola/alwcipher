@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"strings"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
@@ -44,50 +46,19 @@ type userNumInputUI struct {
 	userInput       *numKeyedEntry
 }
 
-func makeNumInputArea(i *boundNumInput, o *boundNumOutput, w fyne.CanvasObject, c *corpus.Corpus) fyne.CanvasObject {
+func makeNumInputArea(i *boundNumInput, o *boundNumOutput, c *corpus.Corpus) fyne.CanvasObject {
 	ui := new(userNumInputUI)
 	calc := func() {
-		// tree is not showing the entire data structure every time
-		// also, it'll just crash if you click around enough; read & write at the same time somehow
-		var st, _ = i.userInput.Get()
+		//var st, _ = i.userInput.Get()
 		var v, err1 = i.userNumInput.Get()
-		a := make(map[string][]string)
-		b := make(map[string]string)
-		o.tree.Set(a, b)
 		if err1 == nil {
-			if v > 0 { // only put the requested number into the tree
-				o.tree.Append(binding.DataTreeRootID, st, st)
-				for _, s := range c.Get(v) {
-					o.tree.Append(st, s, s)
-				}
-			} /*else {
-				keys := make([]int, 0, len(c.Eqs))
-				for key := range c.Eqs {
-					keys = append(keys, key)
-				}
-
-				fmt.Println("sorting")
-				slices.Sort(keys)
-
-				for _, k := range keys {
-					if k <= 0 {
-						continue
-					}
-					sk := strconv.Itoa(k)
-					fmt.Println(k, "has", len(c.Get(k)), "elements")
-					if len(c.Get(k)) > 0 {
-						o.tree.Append(binding.DataTreeRootID, sk, sk)
-						for _, word := range c.Get(k) {
-							o.tree.Append(sk, word, word)
-						}
-					}
-				}
-			}*/
-			w.Refresh()
+			if v > 0 {
+				o.matchingText.Set(strings.Join(c.Get(v), "\n"))
+			}
 		}
 	}
 
-	ui.calculateButton = widget.NewButton("Filter", calc)
+	ui.calculateButton = widget.NewButton("Show matches", calc)
 	ui.userInput = makeNewNumKeyedEntry()
 	ui.userInput.Bind(i.userInput)
 	ui.userInput.OnTypedKey = calc
@@ -96,52 +67,28 @@ func makeNumInputArea(i *boundNumInput, o *boundNumOutput, w fyne.CanvasObject, 
 }
 
 type boundNumOutput struct {
-	//textOutput binding.String
-	tree binding.StringTree
+	matchingText binding.String
 }
 
 func makeNewBoundNumOutput() *boundNumOutput {
 	o := new(boundNumOutput)
-	o.tree = binding.NewStringTree()
+	o.matchingText = binding.NewString()
 	return o
 }
 
-func makeNumOutputArea(bo *boundNumOutput, c *corpus.Corpus) fyne.CanvasObject {
-	/*	w := widget.NewEntryWithData(bo.textOutput)
-		w.MultiLine = true
-		w.Wrapping = fyne.TextWrapBreak*/
-
-	treewg := widget.NewTreeWithData(
-		/* (data binding.DataTree, createItem func(bool) fyne.CanvasObject, updateItem func(binding.DataItem, bool, fyne.CanvasObject)) *widget.Tree*/
-		bo.tree,
-		func(_ bool) fyne.CanvasObject {
-			return widget.NewLabelWithStyle("", fyne.TextAlignLeading, fyne.TextStyle{})
-		},
-		func(data binding.DataItem, isParent bool, obj fyne.CanvasObject) {
-			l := obj.(*widget.Label)
-			//fmt.Println("binding!", l.Text)
-			//if !isParent {
-			l.Bind(data.(binding.String))
-			//}
-		},
-	)
-
-	r := container.NewBorder(nil, nil, nil, nil, treewg)
-	return r
+func makeNumOutputArea(bo *boundNumOutput, _ *corpus.Corpus) fyne.CanvasObject {
+	w := widget.NewEntryWithData(bo.matchingText)
+	w.MultiLine = true
+	w.Wrapping = fyne.TextWrapBreak
+	w.Disable()
+	return container.NewBorder(nil, nil, nil, nil, w)
+	//return r
 }
 
 func MakeNumbersTabUI(c *corpus.Corpus) fyne.CanvasObject {
-
-	//tree.Append()
-	// iterate over the keys of the corpus without knowing how the corpus is implemented
-	// GetKeys perhaps?
-	// currently Corpus exports Eqs so just grab it directly :P. Not the best design.
-
 	bo := makeNewBoundNumOutput()
 	oa := makeNumOutputArea(bo, c)
 	bi := makeNewBoundNumInput()
-	ia := makeNumInputArea(bi, bo, oa, c)
+	ia := makeNumInputArea(bi, bo, c)
 	return container.NewBorder(ia, nil, nil, nil, oa)
-	//return container.NewVBox(ia, oa)
-	//box := container.NewGridWithRows(4, layout.NewSpacer(), ia, layout.NewSpacer(), oa)
 }

@@ -1,30 +1,54 @@
 package main
 
 import (
+	"image/color"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-
+	"fyne.io/fyne/v2/theme"
 	ui "github.com/Nubicola/alwcipher/internal/ui"
 	calculator "github.com/Nubicola/alwcipher/pkg/calculator"
 	corpus "github.com/Nubicola/alwcipher/pkg/corpus"
 )
 
+// foreground: BBBBBBFF
+// disabled: BBBBBB42
+type alwTheme struct{}
+
+func (alwTheme) Color(c fyne.ThemeColorName, v fyne.ThemeVariant) color.Color {
+	switch c {
+	case theme.ColorNameDisabled:
+		// changing the disabled color to the regular color because I find the disabled one hard to read
+		return theme.DefaultTheme().Color(theme.ColorNameForeground, v)
+	default:
+		return theme.DefaultTheme().Color(c, v)
+	}
+}
+
+func (alwTheme) Font(s fyne.TextStyle) fyne.Resource {
+	return theme.DefaultTheme().Font(s)
+}
+
+func (alwTheme) Icon(n fyne.ThemeIconName) fyne.Resource {
+	return theme.DefaultTheme().Icon(n)
+}
+
+func (alwTheme) Size(s fyne.ThemeSizeName) float32 {
+	return theme.DefaultTheme().Size(s)
+}
+
 func main() {
 	myApp := app.NewWithID("eu.thesaturdays.alwcipher")
-	myWindow := myApp.NewWindow("ALW Corpus Visualized")
+	myWindow := myApp.NewWindow("ALW Corpus Explorer")
 	myWindow.Resize(fyne.Size{
-		Width:  460,
-		Height: 500,
+		Width:  500,
+		Height: 700,
 	})
 
 	var eqbc = new(calculator.EQBaseCalculator)
-	/*	var eqfc = new(calculator.EQFirstCalculator)
-		var eqlc = new(calculator.EQLastCalculator)*/
-
 	var alwbasecorpus = corpus.NewCorpus(eqbc)
 
+	myApp.Settings().SetTheme(&alwTheme{})
 	myWindow.SetContent(ui.MakeUI(alwbasecorpus, myWindow))
-	// just for now...
-	//fyne.CurrentApp().Settings().SetTheme(theme.LightTheme())
 	myWindow.ShowAndRun()
 }

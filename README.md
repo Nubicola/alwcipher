@@ -1,14 +1,10 @@
 # alwcipher
 
-Known bug
-Load a corpus, press calculate with no string - crash
-Numbers tab doesn't scroll right. Set wrapping on the elements themselves?
-Importing leaves numbers in there (like 46)
-
-How to expose any data about the corpus (maybe for debug purposes?)
+Bug: type a number into words tab shows wrong output
 
 Roadmap
-- when number tree is focused, typing numbers will filter the tree
+- Numbers tab could show it all as a tree or a string list. However, I had too many problems with the tree. For now, it's just a widget.
+- No real error checking on import and such. Perhaps move import to a menu?
 - UI:
     - New tab: numeric corpus explorer
         - Type in a number and it shows

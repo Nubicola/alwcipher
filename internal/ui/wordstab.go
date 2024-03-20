@@ -53,7 +53,7 @@ func makeNewOutputUI(b *boundOutput) fyne.CanvasObject {
 	oui.outputField = widget.NewEntryWithData(b.outputFieldBoundValue)
 	oui.outputField.MultiLine = true
 	oui.outputField.Wrapping = fyne.TextWrapBreak
-
+	oui.outputField.Disable()
 	outputValueGrid := container.New(layout.NewFormLayout(), oui.baseLabel, oui.baseLabelVal, oui.firstLabel, oui.firstLabelVal, oui.lastLabel, oui.lastLabelVal)
 	box := container.NewBorder(nil, nil, nil, outputValueGrid, oui.outputField)
 	//box := container.NewGridWithColumns(2, oui.outputField, outputValueGrid)
