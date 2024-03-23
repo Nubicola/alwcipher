@@ -24,7 +24,7 @@ func NewCorpus(calc calculator.ALWCalculator) *Corpus {
 // add this string to the corpus
 // this string is assumed to be "clean" and added as a whole string
 func (c *Corpus) Add(s string) error {
-	v := strings.ToUpper(strings.TrimRight(s, "?!;.,'"))
+	v := strings.ToUpper(strings.TrimRight(s, ":?!;.,'"))
 	var val, err = c.calculator.StringValue(v)
 	if err == nil {
 		(c.Eqs)[val] = removeDuplicate[string](append((c.Eqs)[val], v))

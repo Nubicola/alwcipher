@@ -109,7 +109,9 @@ func makeInputArea(i *boundInput, o *boundOutput, c *corpus.Corpus, calcs *calcu
 		bval, berr := calcs.base.StringValue(s)
 		fval, ferr := calcs.first.Calculate(strings.Split(s, " "))
 		lval, lerr := calcs.last.Calculate(strings.Split(s, " "))
-		if verr == nil && berr == nil && ferr == nil && lerr == nil {
+		if verr != nil || berr != nil || ferr != nil || lerr != nil {
+			o.outputFieldBoundValue.Set("words only, please")
+		} else {
 			o.baseBoundValue.Set(bval)
 			o.firstBoundValue.Set(fval)
 			o.lastBoundValue.Set(lval)
@@ -128,8 +130,6 @@ func makeInputArea(i *boundInput, o *boundOutput, c *corpus.Corpus, calcs *calcu
 				ss = append(c.Get(val), s)
 			}
 			o.outputFieldBoundValue.Set(strings.Join(ss, "\n"))
-		} else {
-			o.outputFieldBoundValue.Set("words only, please")
 		}
 	}
 

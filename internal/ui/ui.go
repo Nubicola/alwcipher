@@ -31,6 +31,10 @@ func makeToolbar(c *corpus.Corpus, w fyne.Window) fyne.CanvasObject {
 				}
 			}, w)
 		}),
+		widget.NewToolbarAction(theme.UploadIcon(), func() {
+			d := dialog.NewCustom("Import from file", "OK", MakeCorpusTabUI(c, w), w)
+			d.Show()
+		}),
 		widget.NewToolbarSpacer(),
 		widget.NewToolbarAction(theme.HelpIcon(), func() {
 			richtext := widget.NewRichTextFromMarkdown(
@@ -61,7 +65,7 @@ func MakeUI(c *corpus.Corpus, w fyne.Window) fyne.CanvasObject {
 	tabs := container.NewAppTabs(
 		container.NewTabItem("Words", MakeWordsTabUI(c)),
 		container.NewTabItem("Numbers", MakeNumbersTabUI(c)),
-		container.NewTabItem("Import", MakeCorpusTabUI(c, w)),
+		//container.NewTabItem("Import", MakeCorpusTabUI(c, w)),
 	)
 
 	tabs.SetTabLocation(container.TabLocationBottom)
