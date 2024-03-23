@@ -9,10 +9,6 @@ import (
 	"github.com/Nubicola/alwcipher/pkg/corpus"
 )
 
-/*button := widget.NewButton("Show credits", func() {
-    CreditsWindow(fyne.CurrentApp(), fyne.NewSize(800, 400)).Show()
-})*/
-
 func makeToolbar(c *corpus.Corpus, w fyne.Window) fyne.CanvasObject {
 	toolbar := widget.NewToolbar(
 		widget.NewToolbarAction(theme.FolderOpenIcon(), func() {

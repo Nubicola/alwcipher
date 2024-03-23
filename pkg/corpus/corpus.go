@@ -23,17 +23,20 @@ func NewCorpus(calc calculator.ALWCalculator) *Corpus {
 
 // add this string to the corpus
 // this string is assumed to be "clean" and added as a whole string
-func (c *Corpus) Add(s string) {
+func (c *Corpus) Add(s string) error {
 	v := strings.ToUpper(strings.TrimRight(s, "?!;.,'"))
-	var val = c.calculator.StringValue(v)
-	(c.Eqs)[val] = removeDuplicate[string](append((c.Eqs)[val], v))
+	var val, err = c.calculator.StringValue(v)
+	if err == nil {
+		(c.Eqs)[val] = removeDuplicate[string](append((c.Eqs)[val], v))
+	}
+	return err
 }
 
 func (c *Corpus) Get(x int) []string {
 	return c.Eqs[x]
 }
 
-func (c *Corpus) Calculate(s string) int {
+func (c *Corpus) Calculate(s string) (int, error) {
 	// convenience method to return the calculation this Corpus uses
 	// also you can just grab c.calculator
 	return c.calculator.StringValue(s)

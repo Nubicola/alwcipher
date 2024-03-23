@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/Nubicola/alwcipher/pkg/calculator"
@@ -104,22 +105,32 @@ func makeInputArea(i *boundInput, o *boundOutput, c *corpus.Corpus, calcs *calcu
 	calcfunc := func() {
 		s, _ := i.userInput.Get()
 		// calculate the value of that thing
-		var val = c.Calculate(s)
+		val, verr := c.Calculate(s)
+		bval, berr := calcs.base.StringValue(s)
+		fval, ferr := calcs.first.Calculate(strings.Split(s, " "))
+		lval, lerr := calcs.last.Calculate(strings.Split(s, " "))
+		if verr == nil && berr == nil && ferr == nil && lerr == nil {
+			o.baseBoundValue.Set(bval)
+			o.firstBoundValue.Set(fval)
+			o.lastBoundValue.Set(lval)
 
-		o.baseBoundValue.Set(calcs.base.StringValue(s))
-		o.firstBoundValue.Set(calcs.first.Calculate(strings.Split(s, " ")))
-		o.lastBoundValue.Set(calcs.last.Calculate(strings.Split(s, " ")))
-
-		// build the string to show in the output area. It's either the corpus after adding this string,
-		// or this string appended to the corpus' string (thus not affecting the corpus itself)
-		var ss = make([]string, 1)
-		if fyne.CurrentApp().Preferences().Bool("WriteToCorpus") {
-			c.Add(s)
-			ss = c.Get(val)
+			// build the string to show in the output area. It's either the corpus after adding this string,
+			// or this string appended to the corpus' string (thus not affecting the corpus itself)
+			var ss = make([]string, 1)
+			if fyne.CurrentApp().Preferences().Bool("WriteToCorpus") {
+				err := c.Add(s)
+				if err != nil {
+					dialog.ShowError(err, nil)
+				} else {
+					ss = c.Get(val)
+				}
+			} else {
+				ss = append(c.Get(val), s)
+			}
+			o.outputFieldBoundValue.Set(strings.Join(ss, "\n"))
 		} else {
-			ss = append(c.Get(val), s)
+			o.outputFieldBoundValue.Set("words only, please")
 		}
-		o.outputFieldBoundValue.Set(strings.Join(ss, "\n"))
 	}
 
 	ui.calculateButton = widget.NewButton("Calculate", calcfunc)

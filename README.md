@@ -1,7 +1,5 @@
 # alwcipher
 
-Bug: type a number into words tab shows wrong output
-
 Roadmap
 - Numbers tab could show it all as a tree or a string list. However, I had too many problems with the tree. For now, it's just a widget.
 - No real error checking on import and such. Perhaps move import to a menu?
