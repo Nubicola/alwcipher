@@ -28,6 +28,7 @@ type numKeyedEntry struct {
 	OnTypedKey func()
 }
 
+// https://docs.fyne.io/extend/numerical-entry move to this to ensure only numbers are entered
 func makeNewNumKeyedEntry() *numKeyedEntry {
 	entry := &numKeyedEntry{}
 	entry.ExtendBaseWidget(entry)

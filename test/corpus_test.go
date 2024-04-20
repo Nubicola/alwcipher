@@ -18,7 +18,7 @@ func TestAddWholeString(t *testing.T) {
 	var s = "hello"
 	corpus.Add(s)
 
-	var v = calculator.StringValue(s)
+	var v, _ = calculator.StringValue(s)
 
 	// there is exactly one string in there; check that it's the right one
 	if corpus.Get(v)[0] != strings.ToUpper(s) {
@@ -33,11 +33,13 @@ func TestAddStringWithInvalidChars(t *testing.T) {
 	var s = "hello?!!"
 	var p = "hello"
 	corpus.Add(s)
-	if calculator.StringValue(p) != calculator.StringValue(s) {
+	v1, _ := calculator.StringValue(p)
+	v2, _ := calculator.StringValue(s)
+	if v1 != v2 {
 		t.Error("expected value of equivalent strings to be the same, but they're not")
 		return
 	}
-	var xs = corpus.Get(calculator.StringValue(p))
+	var xs = corpus.Get(v1)
 	if xs[0] != strings.ToUpper(p) {
 		t.Error("expected retrieved string to be the same as trimmed string")
 	}
@@ -51,7 +53,7 @@ func TestGetOnce(t *testing.T) {
 
 	corpus.Add(s)
 
-	var v = calculator.StringValue(s)
+	var v, _ = calculator.StringValue(s)
 	var xs = corpus.Get(v)
 	if xs[0] != strings.ToUpper(s) {
 		t.Errorf("expected %v but found %v", s, xs[0])
@@ -75,7 +77,7 @@ func TestGetMany(t *testing.T) {
 
 	var ns = make([]string, 1)
 	for _, l := range xs {
-		var v = calculator.StringValue(l)
+		var v, _ = calculator.StringValue(l)
 		ns = corpus.Get(v)
 		if ns[0] != strings.ToUpper(l) {
 			t.Errorf("expected %v but found %v", l, ns[0])
@@ -87,7 +89,7 @@ func TestFirst(t *testing.T) {
 	var calculator = new(calculator.EQFirstCalculator)
 	//var corpus = corpus.NewCorpus(calculator)
 	var xs = []string{"TODAY", "ALL", "NEW", "TOYS"} // TANT = 63
-	var f = calculator.Calculate(xs)
+	var f, _ = calculator.Calculate(xs)
 	if f != 63 {
 		t.Errorf("expected 63 but got %v", f)
 	}
@@ -97,7 +99,7 @@ func TestLast(t *testing.T) {
 	var calculator = new(calculator.EQLastCalculator)
 	//var corpus = corpus.NewCorpus(calculator)
 	var xs = []string{"TODAY", "ALL", "NEW", "TOYS"} // YLWS = 25
-	var f = calculator.Calculate(xs)
+	var f, _ = calculator.Calculate(xs)
 	if f != 25 {
 		t.Errorf("expected 25 but got %v", f)
 	}
@@ -114,8 +116,8 @@ func TestCalculate(t *testing.T) {
 	xs := []string{}
 	xs = append(xs, s, p, g, k)
 	for _, l := range xs {
-		var cs = calculator.StringValue(l)
-		var cc = corpus.Calculate(l)
+		var cs, _ = calculator.StringValue(l)
+		var cc, _ = corpus.Calculate(l)
 		if cc != cs {
 			t.Errorf("expected %v but got %v", cs, cc)
 		}

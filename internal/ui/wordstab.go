@@ -103,14 +103,17 @@ func makeInputArea(i *boundInput, o *boundOutput, c *corpus.Corpus, calcs *calcu
 	ui := new(userInputUI)
 	// closures are great!
 	calcfunc := func() {
-		s, _ := i.userInput.Get()
+		s, err := i.userInput.Get()
+		if err != nil || len(s) < 1 {
+			return
+		}
 		// calculate the value of that thing
 		val, verr := c.Calculate(s)
 		bval, berr := calcs.base.StringValue(s)
 		fval, ferr := calcs.first.Calculate(strings.Split(s, " "))
 		lval, lerr := calcs.last.Calculate(strings.Split(s, " "))
 		if verr != nil || berr != nil || ferr != nil || lerr != nil {
-			o.outputFieldBoundValue.Set("words only, please")
+			o.outputFieldBoundValue.Set("invalid characters; use english words without numerals only please")
 		} else {
 			o.baseBoundValue.Set(bval)
 			o.firstBoundValue.Set(fval)
