@@ -1,7 +1,6 @@
 package calculator
 
 import (
-	"errors"
 	"strings"
 	"unicode"
 )
@@ -37,12 +36,11 @@ func (eqbc *EQBaseCalculator) Calculate(ss []string) (int, error) {
 func (eqbc *EQBaseCalculator) StringValue(s string) (int, error) {
 	var value = 0
 	for _, c := range s {
-		if unicode.IsDigit(c) {
-			return 0, errors.New("string may not contain digits")
-		}
-		i := int(unicode.ToLower(c))
-		if i >= int('a') && i <= int('z') {
-			value += (i-int('a'))*19%26 + 1
+		if !unicode.IsDigit(c) { // digits in a string are not added to the value
+			i := int(unicode.ToLower(c))
+			if i >= int('a') && i <= int('z') {
+				value += (i-int('a'))*19%26 + 1
+			}
 		}
 	}
 	return value, nil

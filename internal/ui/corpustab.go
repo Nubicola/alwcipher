@@ -9,8 +9,6 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
-	"github.com/Nubicola/alwcipher/pkg/calculator"
-	"github.com/Nubicola/alwcipher/pkg/corpus"
 )
 
 // changes to the input value will update all these
@@ -43,12 +41,7 @@ func makeNewCorpusOutputUI(b *boundCorpusOutput) fyne.CanvasObject {
 	return box
 }
 
-func MakeCorpusTabUI(c *corpus.Corpus, w fyne.Window) fyne.CanvasObject {
-
-	calcs := new(calculators)
-	calcs.base = new(calculator.EQBaseCalculator)
-	calcs.first = new(calculator.EQFirstCalculator)
-	calcs.last = new(calculator.EQLastCalculator)
+func MakeCorpusTabUI(fc *FyneCorpus, w fyne.Window) fyne.CanvasObject {
 
 	bo := makeNewBoundCorpusOutputs()
 	ou := makeNewCorpusOutputUI(bo)
@@ -69,7 +62,11 @@ func MakeCorpusTabUI(c *corpus.Corpus, w fyne.Window) fyne.CanvasObject {
 			case "Lines":
 				scanner.Split(bufio.ScanLines)
 			}
-			i, er = c.ReadFromScanner(scanner)
+			i := 0
+			for scanner.Scan() {
+				_ = fc.Add(scanner.Text())
+				i += 1
+			}
 		}
 		return i, er
 	}

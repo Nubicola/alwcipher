@@ -6,11 +6,8 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"github.com/Nubicola/alwcipher/pkg/calculator"
-	"github.com/Nubicola/alwcipher/pkg/corpus"
 )
 
 // changes to the input value will update all these
@@ -94,12 +91,8 @@ type userInputUI struct {
 	userInput       *wordsKeyedEntry
 }
 
-type calculators struct {
-	base, first, last calculator.ALWCalculator
-}
-
 // requires the input and the output as this is where the connection happens between the two!
-func makeInputArea(i *boundInput, o *boundOutput, c *corpus.Corpus, calcs *calculators) fyne.CanvasObject {
+func makeInputArea(i *boundInput, o *boundOutput, fc FyneCorpus) fyne.CanvasObject {
 	ui := new(userInputUI)
 	// closures are great!
 	calcfunc := func() {
@@ -107,31 +100,19 @@ func makeInputArea(i *boundInput, o *boundOutput, c *corpus.Corpus, calcs *calcu
 		if err != nil || len(s) < 1 {
 			return
 		}
+		ss := fc.Add(s)
+
 		// calculate the value of that thing
-		val, verr := c.Calculate(s)
-		bval, berr := calcs.base.StringValue(s)
-		fval, ferr := calcs.first.Calculate(strings.Split(s, " "))
-		lval, lerr := calcs.last.Calculate(strings.Split(s, " "))
-		if verr != nil || berr != nil || ferr != nil || lerr != nil {
+		//val, verr := c.Calculate(s)
+		bval, berr := fc.base.StringValue(s)
+		fval, ferr := fc.first.Calculate(strings.Split(s, " "))
+		lval, lerr := fc.last.Calculate(strings.Split(s, " "))
+		if berr != nil || ferr != nil || lerr != nil {
 			o.outputFieldBoundValue.Set("invalid characters; use english words without numerals only please")
 		} else {
 			o.baseBoundValue.Set(bval)
 			o.firstBoundValue.Set(fval)
 			o.lastBoundValue.Set(lval)
-
-			// build the string to show in the output area. It's either the corpus after adding this string,
-			// or this string appended to the corpus' string (thus not affecting the corpus itself)
-			var ss = make([]string, 1)
-			if fyne.CurrentApp().Preferences().Bool("WriteToCorpus") {
-				err := c.Add(s)
-				if err != nil {
-					dialog.ShowError(err, nil)
-				} else {
-					ss = c.Get(val)
-				}
-			} else {
-				ss = append(c.Get(val), s)
-			}
 			o.outputFieldBoundValue.Set(strings.Join(ss, "\n"))
 		}
 	}
@@ -144,18 +125,13 @@ func makeInputArea(i *boundInput, o *boundOutput, c *corpus.Corpus, calcs *calcu
 	return box
 }
 
-func MakeWordsTabUI(c *corpus.Corpus) fyne.CanvasObject {
-
-	calcs := new(calculators)
-	calcs.base = new(calculator.EQBaseCalculator)
-	calcs.first = new(calculator.EQFirstCalculator)
-	calcs.last = new(calculator.EQLastCalculator)
+func MakeWordsTabUI(fc *FyneCorpus) fyne.CanvasObject {
 
 	bo := makeNewBoundOutputs()
 	ou := makeNewOutputUI(bo)
 
 	bi := makeNewBoundInput()
-	ia := makeInputArea(bi, bo, c, calcs)
+	ia := makeInputArea(bi, bo, *fc)
 
 	// write to corpus?
 	writeToCorpusCheckbox := widget.NewCheck("Save to corpus?", func(value bool) {

@@ -7,8 +7,6 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/theme"
 	ui "github.com/Nubicola/alwcipher/internal/ui"
-	calculator "github.com/Nubicola/alwcipher/pkg/calculator"
-	corpus "github.com/Nubicola/alwcipher/pkg/corpus"
 )
 
 // foreground: BBBBBBFF
@@ -45,10 +43,7 @@ func main() {
 		Height: 700,
 	})
 
-	var eqbc = new(calculator.EQBaseCalculator)
-	var alwbasecorpus = corpus.NewCorpus(eqbc)
-
 	myApp.Settings().SetTheme(&alwTheme{})
-	myWindow.SetContent(ui.MakeUI(alwbasecorpus, myWindow))
+	myWindow.SetContent(ui.MakeUI(myWindow))
 	myWindow.ShowAndRun()
 }

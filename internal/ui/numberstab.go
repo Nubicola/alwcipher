@@ -7,7 +7,6 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
-	"github.com/Nubicola/alwcipher/pkg/corpus"
 )
 
 type boundNumInput struct {
@@ -47,14 +46,14 @@ type userNumInputUI struct {
 	userInput       *numKeyedEntry
 }
 
-func makeNumInputArea(i *boundNumInput, o *boundNumOutput, c *corpus.Corpus) fyne.CanvasObject {
+func makeNumInputArea(i *boundNumInput, o *boundNumOutput, fc FyneCorpus) fyne.CanvasObject {
 	ui := new(userNumInputUI)
 	calc := func() {
 		//var st, _ = i.userInput.Get()
 		var v, err1 = i.userNumInput.Get()
 		if err1 == nil {
 			if v > 0 {
-				o.matchingText.Set(strings.Join(c.Get(v), "\n"))
+				o.matchingText.Set(strings.Join(fc.c.Get(v), "\n"))
 			}
 		}
 	}
@@ -77,7 +76,7 @@ func makeNewBoundNumOutput() *boundNumOutput {
 	return o
 }
 
-func makeNumOutputArea(bo *boundNumOutput, _ *corpus.Corpus) fyne.CanvasObject {
+func makeNumOutputArea(bo *boundNumOutput, _ FyneCorpus) fyne.CanvasObject {
 	w := widget.NewEntryWithData(bo.matchingText)
 	w.MultiLine = true
 	w.Wrapping = fyne.TextWrapBreak
@@ -86,10 +85,10 @@ func makeNumOutputArea(bo *boundNumOutput, _ *corpus.Corpus) fyne.CanvasObject {
 	//return r
 }
 
-func MakeNumbersTabUI(c *corpus.Corpus) fyne.CanvasObject {
+func MakeNumbersTabUI(fc *FyneCorpus) fyne.CanvasObject {
 	bo := makeNewBoundNumOutput()
-	oa := makeNumOutputArea(bo, c)
+	oa := makeNumOutputArea(bo, *fc)
 	bi := makeNewBoundNumInput()
-	ia := makeNumInputArea(bi, bo, c)
+	ia := makeNumInputArea(bi, bo, *fc)
 	return container.NewBorder(ia, nil, nil, nil, oa)
 }
