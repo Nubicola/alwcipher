@@ -100,13 +100,16 @@ func makeInputArea(i *boundInput, o *boundOutput, fc FyneCorpus) fyne.CanvasObje
 		if err != nil || len(s) < 1 {
 			return
 		}
-		ss := fc.Add(s)
+
+		cleanString, _ := fc.CleanString(s)
+
+		ss := fc.Add(cleanString)
 
 		// calculate the value of that thing
 		//val, verr := c.Calculate(s)
-		bval, berr := fc.base.StringValue(s)
-		fval, ferr := fc.first.Calculate(strings.Split(s, " "))
-		lval, lerr := fc.last.Calculate(strings.Split(s, " "))
+		bval, berr := fc.base.StringValue(cleanString)
+		fval, ferr := fc.first.Calculate(strings.Split(cleanString, " "))
+		lval, lerr := fc.last.Calculate(strings.Split(cleanString, " "))
 		if berr != nil || ferr != nil || lerr != nil {
 			o.outputFieldBoundValue.Set("invalid characters; use english words without numerals only please")
 		} else {

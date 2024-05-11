@@ -2,7 +2,10 @@ module github.com/Nubicola/alwcipher
 
 go 1.21.1
 
-require fyne.io/fyne/v2 v2.4.1
+require (
+	fyne.io/fyne/v2 v2.4.1
+	github.com/mozillazg/go-unidecode v0.2.0
+)
 
 require (
 	fyne.io/systray v1.10.1-0.20230722100817-88df1e0ffa9a // indirect

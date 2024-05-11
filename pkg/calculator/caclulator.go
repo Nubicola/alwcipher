@@ -3,6 +3,8 @@ package calculator
 import (
 	"strings"
 	"unicode"
+
+	"github.com/mozillazg/go-unidecode"
 )
 
 // a processor that calculates based on regular EQ can only keep calculating on that basis
@@ -35,7 +37,8 @@ func (eqbc *EQBaseCalculator) Calculate(ss []string) (int, error) {
 
 func (eqbc *EQBaseCalculator) StringValue(s string) (int, error) {
 	var value = 0
-	for _, c := range s {
+	sdeunicoded := unidecode.Unidecode(s)
+	for _, c := range sdeunicoded {
 		if !unicode.IsDigit(c) { // digits in a string are not added to the value
 			i := int(unicode.ToLower(c))
 			if i >= int('a') && i <= int('z') {

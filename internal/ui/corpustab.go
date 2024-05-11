@@ -2,6 +2,7 @@ package ui
 
 import (
 	"bufio"
+	"errors"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -14,37 +15,53 @@ import (
 // changes to the input value will update all these
 type boundCorpusOutput struct {
 	// label/str that shows data about what's been imported
-	importedBoundValue    binding.Int
-	importedBoundValueStr binding.String
-	importedMethodStr     binding.String
+	importedBoundValue, corpusCountBV     binding.Int
+	importedBoundValueStr, corpusCountBVS binding.String
+	importedMethodStr, exportMethodStr    binding.String
 }
 
 func makeNewBoundCorpusOutputs() *boundCorpusOutput {
 	bov := new(boundCorpusOutput)
 	bov.importedBoundValue = binding.NewInt()
+	bov.corpusCountBV = binding.NewInt()
 	bov.importedBoundValueStr = binding.IntToString(bov.importedBoundValue)
+	bov.corpusCountBVS = binding.IntToString(bov.corpusCountBV)
 	bov.importedMethodStr = binding.NewString()
+	bov.exportMethodStr = binding.NewString()
 	return bov
 }
 
+/*func makeCorpusOutputArea() fyne.CanvasObject {
+	w := widget.NewEntry()
+	w.MultiLine = true
+	w.Wrapping = fyne.TextWrapBreak
+	w.Disable()
+	return container.NewBorder(nil, nil, nil, nil, w)
+	//return r
+}*/
+
 type outputCorpusUI struct {
-	importedValLabel, importedLabel, importedMethodLabel *widget.Label
+	corpusCountLabel, corpusCountString, importedValLabel, importedLabel, importedMethodLabel *widget.Label
 }
 
 func makeNewCorpusOutputUI(b *boundCorpusOutput) fyne.CanvasObject {
 	oui := new(outputCorpusUI)
 	oui.importedValLabel = widget.NewLabelWithData(b.importedBoundValueStr)
-	oui.importedLabel = widget.NewLabel("Entries imported:")
+	oui.importedLabel = widget.NewLabel("Recent imports:")
 	oui.importedMethodLabel = widget.NewLabelWithData(b.importedMethodStr)
+	oui.corpusCountString = widget.NewLabel("Corpus size:")
+	oui.corpusCountLabel = widget.NewLabelWithData(b.corpusCountBVS)
 
-	box := container.NewHBox(oui.importedLabel, oui.importedValLabel, oui.importedMethodLabel)
-	return box
+	ibox := container.NewHBox(oui.importedLabel, oui.importedValLabel, oui.importedMethodLabel)
+	cbox := container.NewHBox(oui.corpusCountString, oui.corpusCountLabel)
+	return container.NewVBox(cbox, ibox)
 }
 
 func MakeCorpusTabUI(fc *FyneCorpus, w fyne.Window) fyne.CanvasObject {
 
 	bo := makeNewBoundCorpusOutputs()
 	ou := makeNewCorpusOutputUI(bo)
+	bo.corpusCountBV.Set(fc.c.GetWordCount())
 
 	radio := widget.NewRadioGroup([]string{"Words", "Lines" /*, "Sentences", "Phrases"*/}, func(value string) {
 		bo.importedMethodStr.Set(value)
@@ -52,32 +69,45 @@ func MakeCorpusTabUI(fc *FyneCorpus, w fyne.Window) fyne.CanvasObject {
 	radio.SetSelected("Words")
 
 	importFile := func(reader fyne.URIReadCloser) (int, error) {
-		scanner := bufio.NewScanner(reader)
-		mode, er := bo.importedMethodStr.Get()
-		i := 0
-		if er == nil {
-			switch m := mode; m {
-			case "Words":
-				scanner.Split(bufio.ScanWords)
-			case "Lines":
-				scanner.Split(bufio.ScanLines)
-			}
+		uri := reader.URI()
+		if uri.MimeType() == "text/plain" {
+			scanner := bufio.NewScanner(reader)
+			mode, er := bo.importedMethodStr.Get()
 			i := 0
-			for scanner.Scan() {
-				_ = fc.Add(scanner.Text())
-				i += 1
+			if er == nil {
+				switch m := mode; m {
+				case "Words":
+					scanner.Split(bufio.ScanWords)
+				case "Lines":
+					scanner.Split(bufio.ScanLines)
+				}
+				for scanner.Scan() {
+					//fmt.Println("scanned", scanner.Text())
+					s, _ := fc.CleanString(scanner.Text())
+					_ = fc.Add(s)
+					i += 1
+				}
 			}
+			return i, er
 		}
-		return i, er
+		return 0, errors.New("input file must be text/plain")
+
 	}
 
 	fileImportButton := widget.NewButton("Import File", func() {
 		dialog.ShowFileOpen(func(reader fyne.URIReadCloser, err error) {
-			if err == nil && reader != nil {
-				i, er := importFile(reader)
-				if er == nil {
-					bo.importedBoundValue.Set(i)
+			if err == nil {
+				if reader != nil {
+					i, er := importFile(reader)
+					if er == nil {
+						bo.importedBoundValue.Set(i)
+						bo.corpusCountBV.Set(fc.c.GetWordCount())
+					} else {
+						dialog.ShowError(er, w)
+					}
 				}
+			} else {
+				dialog.ShowError(err, w)
 			}
 		}, w)
 	})
@@ -97,10 +127,42 @@ func MakeCorpusTabUI(fc *FyneCorpus, w fyne.Window) fyne.CanvasObject {
 					}
 				}
 				bo.importedBoundValue.Set(i)
+				bo.corpusCountBV.Set(fc.c.GetWordCount())
 			}
 		}, w)
 	})
 
-	box := container.NewVBox(radio, fileImportButton, folderImportButton, ou)
-	return box
+	exportRadio := widget.NewRadioGroup([]string{"Alphabetically", "Numerically" /*, "Sentences", "Phrases"*/}, func(value string) {
+		bo.exportMethodStr.Set(value)
+	})
+	exportRadio.SetSelected("Numerically")
+	exportRadio.Disable()
+
+	exportButton := widget.NewButton("Export Corpus", func() {
+		d := dialog.NewFileSave(func(closer fyne.URIWriteCloser, err error) {
+			if err == nil && closer != nil {
+				fc.c.SaveNumerically(closer)
+			}
+		}, w)
+		d.Show()
+	})
+
+	clearButton := widget.NewButton("Clear Corpus", func() {
+		d := dialog.NewConfirm("Clear Corpus?", "Clear the corpus? This cannot be undone!", func(doIt bool) {
+			if doIt {
+				fc.Clear()
+			}
+		}, w)
+		d.Show()
+	})
+
+	importArea := container.NewVBox(widget.NewLabel("Import"), widget.NewSeparator(),
+		container.NewVBox(container.NewHBox(radio, folderImportButton, fileImportButton)))
+	//outputArea := makeCorpusOutputArea()
+	exportArea := container.NewVBox(widget.NewLabel("Export"), widget.NewSeparator(), container.NewHBox(exportRadio, exportButton))
+	clearArea := container.NewVBox(widget.NewLabel("Clear"), widget.NewSeparator(), container.NewHBox(clearButton))
+	corpusArea := container.NewVBox(widget.NewLabel("Corpus Management"), widget.NewSeparator(), ou)
+	border := container.NewBorder(corpusArea, nil, nil, nil, container.NewVBox(exportArea, importArea, clearArea))
+
+	return border
 }
