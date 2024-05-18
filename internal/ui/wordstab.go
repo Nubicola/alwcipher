@@ -137,12 +137,12 @@ func MakeWordsTabUI(fc *FyneCorpus) fyne.CanvasObject {
 	ia := makeInputArea(bi, bo, *fc)
 
 	// write to corpus?
-	writeToCorpusCheckbox := widget.NewCheck("Save to corpus?", func(value bool) {
-		fyne.CurrentApp().Preferences().SetBool("WriteToCorpus", value)
-	})
-	writeToCorpusCheckbox.Checked = fyne.CurrentApp().Preferences().BoolWithFallback("WriteToCorpus", true)
+	/*	writeToCorpusCheckbox := widget.NewCheck("Save to corpus?", func(value bool) {
+			fyne.CurrentApp().Preferences().SetBool("WriteToCorpus", value)
+		})
+		writeToCorpusCheckbox.Checked = fyne.CurrentApp().Preferences().BoolWithFallback("WriteToCorpus", true)
 
-	box := container.NewVBox(ia, writeToCorpusCheckbox)
-	border := container.NewBorder(box, nil, nil, nil, ou)
+		box := container.NewVBox(ia, writeToCorpusCheckbox)*/
+	border := container.NewBorder(ia, nil, nil, nil, ou)
 	return border
 }

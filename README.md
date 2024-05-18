@@ -18,5 +18,11 @@ Roadmap
             - N - 36 (removing the ego from the equation; what the I experiences)
             - Neo-pythagorean-reduction to 21, 9
     - New tab: file import to corpus (different from "loading!")
-- clean up the help info
+- clean up the help info - done
 - better error info
+- export lines broken - fixed
+
+
+can we get a verse, phrase, word export option? verse seperated by blank lines, phrases seperated by any punctuation marks, words by any white space. 
+maybe with headings for words Numerically, phrases Numerically,
+verses Numerically

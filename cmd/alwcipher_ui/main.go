@@ -39,8 +39,8 @@ func main() {
 	myApp := app.NewWithID("eu.thesaturdays.alwcipher")
 	myWindow := myApp.NewWindow("ALW Corpus Explorer")
 	myWindow.Resize(fyne.Size{
-		Width:  500,
-		Height: 700,
+		Width:  800,
+		Height: 1200,
 	})
 
 	myApp.Settings().SetTheme(&alwTheme{})

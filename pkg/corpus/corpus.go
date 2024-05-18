@@ -2,8 +2,10 @@ package corpus
 
 import (
 	"bufio"
+	"cmp"
 	"encoding/json"
 	"io"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -86,6 +88,9 @@ func (c *Corpus) SaveNumerically(w io.Writer) error {
 	for _, i := range keys {
 		ex := c.Eqs[i]
 		ey := make([][]byte, len(ex))
+		slices.SortFunc(ex, func(a, b string) int {
+			return cmp.Compare(a, b)
+		})
 		for i := range ex {
 			ey[i] = []byte(ex[i])
 		}

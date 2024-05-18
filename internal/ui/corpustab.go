@@ -41,7 +41,7 @@ func makeNewBoundCorpusOutputs() *boundCorpusOutput {
 }*/
 
 type outputCorpusUI struct {
-	corpusCountLabel, corpusCountString, importedValLabel, importedLabel, importedMethodLabel *widget.Label
+	/*corpusCountLabel, corpusCountString,*/ importedValLabel, importedLabel, importedMethodLabel *widget.Label
 }
 
 func makeNewCorpusOutputUI(b *boundCorpusOutput) fyne.CanvasObject {
@@ -49,12 +49,12 @@ func makeNewCorpusOutputUI(b *boundCorpusOutput) fyne.CanvasObject {
 	oui.importedValLabel = widget.NewLabelWithData(b.importedBoundValueStr)
 	oui.importedLabel = widget.NewLabel("Recent imports:")
 	oui.importedMethodLabel = widget.NewLabelWithData(b.importedMethodStr)
-	oui.corpusCountString = widget.NewLabel("Corpus size:")
-	oui.corpusCountLabel = widget.NewLabelWithData(b.corpusCountBVS)
+	/*oui.corpusCountString = widget.NewLabel("Corpus size:")
+	oui.corpusCountLabel = widget.NewLabelWithData(b.corpusCountBVS)*/
 
 	ibox := container.NewHBox(oui.importedLabel, oui.importedValLabel, oui.importedMethodLabel)
-	cbox := container.NewHBox(oui.corpusCountString, oui.corpusCountLabel)
-	return container.NewVBox(cbox, ibox)
+	//cbox := container.NewHBox(oui.corpusCountString, oui.corpusCountLabel)
+	return ibox //container.NewVBox(cbox, ibox)
 }
 
 func MakeCorpusTabUI(fc *FyneCorpus, w fyne.Window) fyne.CanvasObject {
@@ -132,7 +132,37 @@ func MakeCorpusTabUI(fc *FyneCorpus, w fyne.Window) fyne.CanvasObject {
 		}, w)
 	})
 
-	exportRadio := widget.NewRadioGroup([]string{"Alphabetically", "Numerically" /*, "Sentences", "Phrases"*/}, func(value string) {
+	/*	annotateButton := widget.NewButton("Annotate file", func() {
+			dialog.ShowFileOpen(func(reader fyne.URIReadCloser, err error) {
+				if err == nil {
+					if reader != nil {
+						uri := reader.URI()
+						if uri.MimeType() == "text/plain" {
+							var rstring strings.Builder
+							scanner := bufio.NewScanner(reader)
+							scanner.Split(bufio.ScanWords)
+							for scanner.Scan() {
+								s, _ := fc.CleanString(scanner.Text())
+								_ = fc.Add(s)
+								v, _ := fc.base.StringValue(s)
+								rstring.WriteString(s + "^" + strconv.Itoa(v) + "^ ")
+							}
+							md := widget.NewRichTextFromMarkdown(rstring.String())
+							md.Wrapping = fyne.TextWrapWord
+							c := container.NewBorder(nil, nil, nil, nil, md)
+							fmt.Println("gonna show the md")
+							d := dialog.NewCustom("Annotated Text", "OK", c, w)
+							d.Show()
+						}
+					}
+				} else {
+					dialog.ShowError(err, w)
+				}
+			}, w)
+		})
+		annotateButton.Disable()*/
+
+	exportRadio := widget.NewRadioGroup([]string{ /*"Alphabetically",*/ "Numerically" /*, "Sentences", "Phrases"*/}, func(value string) {
 		bo.exportMethodStr.Set(value)
 	})
 	exportRadio.SetSelected("Numerically")
@@ -157,7 +187,9 @@ func MakeCorpusTabUI(fc *FyneCorpus, w fyne.Window) fyne.CanvasObject {
 	})
 
 	importArea := container.NewVBox(widget.NewLabel("Import"), widget.NewSeparator(),
-		container.NewVBox(container.NewHBox(radio, folderImportButton, fileImportButton)))
+		container.NewVBox(container.NewHBox(radio, folderImportButton, fileImportButton)), widget.NewSeparator(),
+		/*container.NewHBox(annotateButton, widget.NewLabel("Import a text file. Add the items to the corpus,\n then show an annotated version of the text"))*/
+	)
 	//outputArea := makeCorpusOutputArea()
 	exportArea := container.NewVBox(widget.NewLabel("Export"), widget.NewSeparator(), container.NewHBox(exportRadio, exportButton))
 	clearArea := container.NewVBox(widget.NewLabel("Clear"), widget.NewSeparator(), container.NewHBox(clearButton))

@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"bufio"
+	_ "embed"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -15,6 +17,12 @@ import (
 	"github.com/Nubicola/alwcipher/pkg/corpus"
 	"github.com/mozillazg/go-unidecode"
 )
+
+//go:embed liber_al.txt
+var liber_al string
+
+//go:embed liber_al_chunked.txt
+var liber_al_chunked string
 
 func Ints(input []int) []int {
 	u := make([]int, 0, len(input))
@@ -37,9 +45,9 @@ type FyneCorpus struct {
 
 func (c *FyneCorpus) CleanString(s string) (string, error) {
 	sdeunicoded := unidecode.Unidecode(s)
-	reg, err := regexp.Compile("[^a-zA-Z]+")
+	reg, err := regexp.Compile("[^a-zA-Z ]+")
 	if err == nil {
-		processedString := reg.ReplaceAllString(sdeunicoded, "")
+		processedString := strings.TrimSpace(reg.ReplaceAllString(sdeunicoded, ""))
 		return strings.ToUpper(processedString), nil
 	}
 	return "", err
@@ -53,27 +61,27 @@ func (c *FyneCorpus) Add(s string) []string {
 		dialog.ShowError(verr, nil)
 		fmt.Println(verr)
 	} else {
-		if fyne.CurrentApp().Preferences().Bool("WriteToCorpus") {
-			// add it to the corpus
-			err := c.c.Add(s)
-			if err != nil {
-				dialog.ShowError(err, nil)
-			} else {
-				// add it to the preferences
-				ss = c.c.Get(val)
-				sval := strconv.Itoa(val)
-				fyne.CurrentApp().Preferences().SetStringList(sval, ss)
-
-				ints := fyne.CurrentApp().Preferences().IntList("CorpusKeys")
-				ints = append(ints, val)
-				// store the corpus-key-list in one setting, and the corpus-value-list directly
-				fyne.CurrentApp().Preferences().SetIntList("CorpusKeys", Ints(ints))
-
-			}
+		//		if fyne.CurrentApp().Preferences().Bool("WriteToCorpus") {
+		// add it to the corpus
+		err := c.c.Add(s)
+		if err != nil {
+			dialog.ShowError(err, nil)
 		} else {
-			// just add it to the return value
-			ss = append(c.c.Get(val), s)
+			// add it to the preferences
+			ss = c.c.Get(val)
+			sval := strconv.Itoa(val)
+			fyne.CurrentApp().Preferences().SetStringList(sval, ss)
+
+			ints := fyne.CurrentApp().Preferences().IntList("CorpusKeys")
+			ints = append(ints, val)
+			// store the corpus-key-list in one setting, and the corpus-value-list directly
+			fyne.CurrentApp().Preferences().SetIntList("CorpusKeys", Ints(ints))
+
 		}
+		/*		} else {
+				// just add it to the return value
+				ss = append(c.c.Get(val), s)
+			}*/
 	}
 	return ss
 }
@@ -88,7 +96,7 @@ func (c *FyneCorpus) Clear() {
 	fyne.CurrentApp().Preferences().RemoveValue("CorpusKeys")
 }
 
-func makeToolbar(fc FyneCorpus, w fyne.Window) fyne.CanvasObject {
+func makeToolbar(_ *FyneCorpus, w fyne.Window) fyne.CanvasObject {
 	toolbar := widget.NewToolbar(
 		/*widget.NewToolbarAction(theme.UploadIcon(), func() {
 			d := dialog.NewCustom("Corpus Management", "OK", MakeCorpusTabUI(&fc, w), w)
@@ -96,17 +104,25 @@ func makeToolbar(fc FyneCorpus, w fyne.Window) fyne.CanvasObject {
 		}),
 		widget.NewToolbarSpacer(),*/
 		widget.NewToolbarAction(theme.HelpIcon(), func() {
-			richtext := widget.NewRichTextFromMarkdown(
-				"Enjoying this application? \n\n I'd love it if you would [buy me a coffee!](https://www.buymeacoffee.com/nubicola) " +
-					"\n\n The purpose of the utility is to help you discover relationships between words using English Gematria. In particular, you can build" +
-					" a 'corpus', or a body of word-to-number (or phrase-to-number) associations." +
-					"\n\n **NOTE** don't load huge text files. Later releases will support larger amounts of words. \n\n" +
-					"\n\n Try it. Type in 'hello' and press enter. Type in 'helol' and see that it has the same value. Change to the other tab and type" +
-					" '40' and see that both words are there. Import entire text files by line or by word. Take care: there is not a lot of error handling." +
-					"\n\n# Words\n\n Type in a word or words. The EQ value will be shown on the right. Matching values from your corpus will be shown.\n\n" +
-					"The selection box 'save to corpus' will do just that.\n\n" +
-					"# Numbers\n\n Type in a number. All matching words in the corpus will be shown\n\n" +
-					"# Corpus\n\n Operate on the corpus itself; you can import whole text files, export, and clear it out completely.\n\n")
+			richtext := widget.NewRichTextFromMarkdown(`
+The purpose of the utility is to help you discover relationships between words using English Gematria. In particular, you can build a 'corpus', or a body of word-to-number (or phrase-to-number) associations.
+
+**NOTE** don't load huge text files. Later releases will support larger amounts of words.
+
+# Words
+Type in a word or words. The EQ value will be shown on the right. Matching values from your corpus will be shown.
+
+# Numbers
+Type in a number. All matching words in the corpus will be shown
+
+# Corpus
+Operate on the corpus itself; you can import whole text files, export, and clear it out completely
+
+# And...
+Heartfelt thanks co-conspirators Adeline Dally Soothell, Yuri McGlinchey and Chris Carr. This wouldn't have been possible without their support.
+
+Enjoying this application? I'd love it if you would [buy me a coffee!](https://www.buymeacoffee.com/nubicola)
+`)
 			richtext.Wrapping = fyne.TextWrapWord
 			d := dialog.NewCustom("ALW Corpus Explorer Help", "OK", richtext, w)
 			d.Show()
@@ -147,8 +163,30 @@ func MakeUI(w fyne.Window) fyne.CanvasObject {
 			_ = fyneCorpus.c.Add(s)
 		}
 	}
+
+	// load Liber Al and Liber Al Chunked
+	// make it optional as a next step
+
+	addIt := func(scanner *bufio.Scanner) {
+		for scanner.Scan() {
+			s, _ := fyneCorpus.CleanString(scanner.Text())
+			_ = fyneCorpus.Add(s)
+		}
+
+	}
+
+	reader := strings.NewReader(liber_al)
+	scanner := bufio.NewScanner(reader)
+	scanner.Split(bufio.ScanWords)
+	addIt(scanner)
+
+	reader = strings.NewReader(liber_al_chunked)
+	scanner = bufio.NewScanner(reader)
+	scanner.Split(bufio.ScanLines)
+	addIt(scanner)
+
 	tabs.SetTabLocation(container.TabLocationBottom)
 
-	content := container.NewBorder(makeToolbar(*fyneCorpus, w), nil, nil, nil, tabs)
+	content := container.NewBorder(makeToolbar(fyneCorpus, w), nil, nil, nil, tabs)
 	return content
 }
