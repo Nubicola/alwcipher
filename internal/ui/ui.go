@@ -124,7 +124,7 @@ Heartfelt thanks co-conspirators Adeline Dally Soothell, Yuri McGlinchey and Chr
 Enjoying this application? I'd love it if you would [buy me a coffee!](https://www.buymeacoffee.com/nubicola)
 `)
 			richtext.Wrapping = fyne.TextWrapWord
-			d := dialog.NewCustom("ALW Corpus Explorer Help", "OK", richtext, w)
+			d := dialog.NewCustom("EQ Concordance Help", "OK", richtext, w)
 			d.Show()
 			width, height := w.Canvas().Size().Components()
 			d.Resize(w.Canvas().Size().SubtractWidthHeight(width*.2, height*.2))

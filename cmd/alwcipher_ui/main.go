@@ -36,8 +36,8 @@ func (alwTheme) Size(s fyne.ThemeSizeName) float32 {
 }
 
 func main() {
-	myApp := app.NewWithID("eu.thesaturdays.alwcipher")
-	myWindow := myApp.NewWindow("ALW Corpus Explorer")
+	myApp := app.NewWithID("eu.thesaturdays.eqconcordance")
+	myWindow := myApp.NewWindow("EQ Concordance")
 	myWindow.Resize(fyne.Size{
 		Width:  800,
 		Height: 1200,
