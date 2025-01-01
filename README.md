@@ -6,6 +6,18 @@ This application supports you in building a corpus of English words, grouped by 
 
 EQ is a way of discovering relationships between words and phrases. You can learn a lot more on (Wikipedia - English Qaballa)[https://en.wikipedia.org/wiki/English_Qaballa]
 
+# Screenshots
+
+## Enter some words and see what their value is, and what words match
+![image](https://github.com/Nubicola/alwcipher/assets/89207946/2ffde3b9-6cc4-4a72-9144-c1a14a6d6151)
+
+
+## Type in a number and see what matches
+![image](https://github.com/Nubicola/alwcipher/assets/89207946/ace3e0bc-3dd6-477c-8100-6db7ababcb9d)
+
+## Import text files to analyze them; you can also export
+![image](https://github.com/Nubicola/alwcipher/assets/89207946/8c64d79b-da1a-45a2-868e-91cb798e4419)
+
 # Roadmap
 - release for Mac and maybe even mobile app
 - export corpus to text by alphabetically
