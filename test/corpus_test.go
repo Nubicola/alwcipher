@@ -13,7 +13,7 @@ import (
 
 func TestAddWholeString(t *testing.T) {
 	var calculator = new(calculator.EQBaseCalculator)
-	var corpus = corpus.NewCorpus(calculator)
+	var corpus = corpus.NewCorpusMap(calculator)
 
 	var s = "hello"
 	corpus.Add(s)
@@ -28,7 +28,7 @@ func TestAddWholeString(t *testing.T) {
 
 func TestAddStringWithInvalidChars(t *testing.T) {
 	var calculator = new(calculator.EQBaseCalculator)
-	var corpus = corpus.NewCorpus(calculator)
+	var corpus = corpus.NewCorpusMap(calculator)
 
 	var s = "hello?!!"
 	var p = "hello"
@@ -47,7 +47,7 @@ func TestAddStringWithInvalidChars(t *testing.T) {
 
 func TestGetOnce(t *testing.T) {
 	var calculator = new(calculator.EQBaseCalculator)
-	var corpus = corpus.NewCorpus(calculator)
+	var corpus = corpus.NewCorpusMap(calculator)
 
 	var s = "hello"
 
@@ -62,7 +62,7 @@ func TestGetOnce(t *testing.T) {
 
 func TestGetMany(t *testing.T) {
 	var calculator = new(calculator.EQBaseCalculator)
-	var corpus = corpus.NewCorpus(calculator)
+	var corpus = corpus.NewCorpusMap(calculator)
 
 	var s = "hello"
 	var p = "foo"
@@ -107,7 +107,7 @@ func TestLast(t *testing.T) {
 
 func TestCalculate(t *testing.T) {
 	var calculator = new(calculator.EQBaseCalculator)
-	var corpus = corpus.NewCorpus(calculator)
+	var corpus = corpus.NewCorpusMap(calculator)
 
 	var s = "hello"
 	var p = "foo"
@@ -126,7 +126,7 @@ func TestCalculate(t *testing.T) {
 
 func TestReadOneValidCorpusFile(t *testing.T) {
 	var calculator = new(calculator.EQBaseCalculator)
-	var corpus = corpus.NewCorpus(calculator)
+	var corpus = corpus.NewCorpusMap(calculator)
 
 	f, err := os.Open("data/corpus_1.md") // values of these are 22
 	if err != nil {
@@ -147,7 +147,7 @@ func TestReadOneValidCorpusFile(t *testing.T) {
 
 func TestLoad(t *testing.T) {
 	var calculator = new(calculator.EQBaseCalculator)
-	var corpus = corpus.NewCorpus(calculator)
+	var corpus = corpus.NewCorpusMap(calculator)
 	data := []byte(`{"22":["DRAW","CLAD"]}`)
 	// convert byte slice to io.Reader
 	reader := bytes.NewReader(data)

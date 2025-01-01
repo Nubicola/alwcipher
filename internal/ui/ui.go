@@ -39,7 +39,7 @@ func Ints(input []int) []int {
 }
 
 type FyneCorpus struct {
-	c                 *corpus.Corpus
+	c                 *corpus.CorpusMap
 	base, first, last calculator.ALWCalculator
 }
 
@@ -119,7 +119,7 @@ Type in a number. All matching words in the corpus will be shown
 Operate on the corpus itself; you can import whole text files, export, and clear it out completely
 
 # And...
-Heartfelt thanks co-conspirators Adeline Dally Soothell, Yuri McGlinchey and Chris Carr. This wouldn't have been possible without their support.
+Heartfelt thanks co-conspirators Adeline Dally Soothell and Yuri McGlinchey. This wouldn't have been possible without their support.
 
 Enjoying this application? I'd love it if you would [buy me a coffee!](https://www.buymeacoffee.com/nubicola)
 `)
@@ -146,7 +146,7 @@ func MakeUI(w fyne.Window) fyne.CanvasObject {
 	fyneCorpus.base = new(calculator.EQBaseCalculator)
 	fyneCorpus.first = new(calculator.EQFirstCalculator)
 	fyneCorpus.last = new(calculator.EQLastCalculator)
-	fyneCorpus.c = corpus.NewCorpus(fyneCorpus.base)
+	fyneCorpus.c = corpus.NewCorpusMap(fyneCorpus.base)
 
 	tabs := container.NewAppTabs(
 		container.NewTabItem("Words", MakeWordsTabUI(fyneCorpus)),

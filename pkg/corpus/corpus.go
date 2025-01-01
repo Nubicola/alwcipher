@@ -13,14 +13,25 @@ import (
 	calculator "github.com/Nubicola/alwcipher/pkg/calculator"
 )
 
-type Corpus struct {
+type Corpus interface {
+	Get(x int) []string
+	Calculate(s string) (int, error)
+	GetWordCount() int
+	Clear()
+	ReadFromScanner(r *bufio.Scanner) (int, error)
+	SaveNative(w io.Writer) error
+	SaveNumerically(w io.Writer) error
+	LoadNative(r io.Reader) error
+}
+
+type CorpusMap struct {
 	Eqs        map[int][]string // exported so it can be marshalled
 	calculator calculator.ALWCalculator
 	wordCount  int
 }
 
-func NewCorpus(calc calculator.ALWCalculator) *Corpus {
-	var pC = new(Corpus)
+func NewCorpusMap(calc calculator.ALWCalculator /*, dbpath string*/) *CorpusMap {
+	var pC = new(CorpusMap)
 	pC.Eqs = make(map[int][]string)
 	pC.calculator = calc
 	pC.wordCount = 0
@@ -29,7 +40,7 @@ func NewCorpus(calc calculator.ALWCalculator) *Corpus {
 
 // add this string to the corpus
 // this string is assumed to be "clean" and added as a whole string
-func (c *Corpus) Add(s string) error {
+func (c *CorpusMap) Add(s string) error {
 	//v := strings.ToUpper(strings.TrimRight(s, ":?!;.,'()"))
 	var val, err = c.calculator.StringValue(s)
 	if err == nil {
@@ -39,25 +50,25 @@ func (c *Corpus) Add(s string) error {
 	return err
 }
 
-func (c *Corpus) Get(x int) []string {
+func (c *CorpusMap) Get(x int) []string {
 	return c.Eqs[x]
 }
 
-func (c *Corpus) Calculate(s string) (int, error) {
+func (c *CorpusMap) Calculate(s string) (int, error) {
 	// convenience method to return the calculation this Corpus uses
 	// also you can just grab c.calculator
 	return c.calculator.StringValue(s)
 }
 
-func (c *Corpus) GetWordCount() int {
+func (c *CorpusMap) GetWordCount() int {
 	return c.wordCount
 }
 
-func (c *Corpus) Clear() {
+func (c *CorpusMap) Clear() {
 	c.Eqs = make(map[int][]string)
 }
 
-func (c *Corpus) ReadFromScanner(r *bufio.Scanner) (int, error) {
+func (c *CorpusMap) ReadFromScanner(r *bufio.Scanner) (int, error) {
 	i := 0
 	for r.Scan() {
 		c.Add(r.Text())
@@ -66,7 +77,7 @@ func (c *Corpus) ReadFromScanner(r *bufio.Scanner) (int, error) {
 	return i, r.Err()
 }
 
-func (c *Corpus) SaveNative(w io.Writer) error {
+func (c *CorpusMap) SaveNative(w io.Writer) error {
 	b, err := json.Marshal(c.Eqs)
 	if err != nil {
 		return err
@@ -78,7 +89,7 @@ func (c *Corpus) SaveNative(w io.Writer) error {
 	return nil
 }
 
-func (c *Corpus) SaveNumerically(w io.Writer) error {
+func (c *CorpusMap) SaveNumerically(w io.Writer) error {
 	keys := make([]int, 0, len(c.Eqs))
 	for k := range c.Eqs {
 		keys = append(keys, k)
@@ -101,7 +112,7 @@ func (c *Corpus) SaveNumerically(w io.Writer) error {
 	return nil
 }
 
-func (c *Corpus) LoadNative(r io.Reader) error {
+func (c *CorpusMap) LoadNative(r io.Reader) error {
 	b, err := io.ReadAll(r)
 	if err != nil {
 		return err
